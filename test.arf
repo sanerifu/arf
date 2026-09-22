@@ -1,1 +1,27 @@
-1 2 +
+# işlevler
+
+sayı a sayı b topla sayı:
+    a b + dön.
+
+yürüt sayı:
+    değişken sayı sayaç 0 olsun.
+    [döngü] i 0 (5 5 +) arasında:
+        i 5 < ise:
+            sayı sonuç (i sayaç topla) olsun.
+            sayaç sonuç olsun.
+        değil ama i 7 == ise:
+            [döngü] bitir.
+        değilse:
+            [döngü] devam.
+
+    değişken karakter[512] metin [] olsun.
+    değişken sayı metin_sonu 0 olsun.
+    değişken sayı sonuç 0 olsun.
+    sonuç 0 != sürece en az bir kere:
+        sonuç (metin metin_sonu +) ((metin boyutu) metin_sonu -) oku olsun.
+        metin_sonu sonuç eklensin.
+
+    "%d\n" sayaç yazdır.
+    "%s okundu\n" metin yazdır.
+    0 dön.
+
