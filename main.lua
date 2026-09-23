@@ -1,5 +1,42 @@
 local inspect = require("lib.inspect")
 
+---@class Identifier
+---@field type "Identifier"
+---@field value string
+---@class LeftParenthesis
+---@field type "LeftParenthesis"
+---@class RightParenthesis
+---@field type "RightParenthesis"
+---@class LeftBracket
+---@field type "LeftBracket"
+---@class RightBracket
+---@field type "RigthBracket"
+---@class LeftBrace
+---@field type "LeftBrace"
+---@class RightBrace
+---@field type "RightBrace"
+---@class Dot
+---@field type "Dot"
+---@class Semicolon
+---@field type "Semicolon"
+---@class Colon
+---@field type "Colon"
+---@class Type
+---@field type "Type"
+---@field value string
+---@class Indent
+---@field type "Indent"
+---@class Outdent
+---@field type "Outdent"
+
+---@alias Token Identifier | LeftParenthesis | RightParenthesis | LeftBracket | RightBracket | LeftBrace | RightBrace | Dot | Semicolon | Colon | Type | Indent | Outdent
+
+---@param token Token
+---@return Token
+local function copy(token)
+    return { type = token.type, value = token.value }
+end
+
 local input_file = arg[1]
 local output_file = arg[2] or input_file:gsub(".arf", ".c")
 
@@ -23,41 +60,41 @@ end)
 
 local last_indent_count = 0
 
-local tokens = {}
+local tokens = {} ---@type Token[]
 
 local TERMINATER = {
-    [":"] = "COLON",
-    ["."] = "DOT",
-    [";"] = "SEMICOLON",
-}
+    [":"] = { type = "Colon" },
+    ["."] = { type = "Dot" },
+    [";"] = { type = "Semicolon" },
+} ---@type table<string, Token>
 
 local SYMBOLS = {
-    ["("] = { type = "LPAREN" },
-    [")"] = { type = "RPAREN" },
-    ["["] = { type = "LBRACKET" },
-    ["]"] = { type = "RBRACKET" },
-    ["{"] = { type = "LBRACE" },
-    ["}"] = { type = "RBRACE" },
-}
+    ["("] = { type = "LeftParenthesis" },
+    [")"] = { type = "RightParenthesis" },
+    ["["] = { type = "LeftBracket" },
+    ["]"] = { type = "RightBracket" },
+    ["{"] = { type = "LeftBrace" },
+    ["}"] = { type = "RightBrace" },
+} ---@type table<string, Token>
 
 local KEYWORDS = {
-    ["sayı"] = { type = "TYPE", value = "sayı" },
-    ["pozitif"] = { type = "TYPE", value = "pozitif" },
-    ["gerçel"] = { type = "TYPE", value = "gerçel" },
+    ["sayı"] = { type = "Type", value = "sayı" },
+    ["pozitif"] = { type = "Type", value = "pozitif" },
+    ["gerçel"] = { type = "Type", value = "gerçel" },
 
-    ["sayı8"] = { type = "TYPE", value = "sayı8" },
-    ["sayı16"] = { type = "TYPE", value = "sayı16" },
-    ["sayı32"] = { type = "TYPE", value = "sayı32" },
-    ["sayı64"] = { type = "TYPE", value = "sayı64" },
-    ["pozitif8"] = { type = "TYPE", value = "pozitif8" },
-    ["pozitif16"] = { type = "TYPE", value = "pozitif16" },
-    ["pozitif32"] = { type = "TYPE", value = "pozitif32" },
-    ["pozitif64"] = { type = "TYPE", value = "pozitif64" },
-    ["gerçel32"] = { type = "TYPE", value = "gerçel32" },
-    ["gerçel64"] = { type = "TYPE", value = "gerçel64" },
+    ["sayı8"] = { type = "Type", value = "sayı8" },
+    ["sayı16"] = { type = "Type", value = "sayı16" },
+    ["sayı32"] = { type = "Type", value = "sayı32" },
+    ["sayı64"] = { type = "Type", value = "sayı64" },
+    ["pozitif8"] = { type = "Type", value = "pozitif8" },
+    ["pozitif16"] = { type = "Type", value = "pozitif16" },
+    ["pozitif32"] = { type = "Type", value = "pozitif32" },
+    ["pozitif64"] = { type = "Type", value = "pozitif64" },
+    ["gerçel32"] = { type = "Type", value = "gerçel32" },
+    ["gerçel64"] = { type = "Type", value = "gerçel64" },
 
-    ["karakter"] = { type = "TYPE", value = "karakter" },
-}
+    ["karakter"] = { type = "Type", value = "karakter" },
+} ---@type table<string, Token>
 
 for line, sep in input:gmatch("([^:.;]+)([:.;])") do
     local trimmed = line:gsub("^%s*\n", ""):gsub("\n", " ")
@@ -100,7 +137,7 @@ for line, sep in input:gmatch("([^:.;]+)([:.;])") do
         else
             if SYMBOLS[codepoint] then
                 flush()
-                table.insert(tokens, { type = SYMBOLS[codepoint].type })
+                table.insert(tokens, copy(SYMBOLS[codepoint]))
             else
                 current_token.type = "IDENTIFIER"
                 table.insert(current_token.value, codepoint)
@@ -109,7 +146,7 @@ for line, sep in input:gmatch("([^:.;]+)([:.;])") do
     end
 
     flush()
-    table.insert(tokens, { type = TERMINATER[sep] })
+    table.insert(tokens, copy(TERMINATER[sep]))
 end
 
 print(inspect(tokens))
