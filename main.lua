@@ -40,6 +40,25 @@ local SYMBOLS = {
     ["}"] = { type = "RBRACE" },
 }
 
+local KEYWORDS = {
+    ["sayı"] = { type = "TYPE", value = "sayı" },
+    ["pozitif"] = { type = "TYPE", value = "pozitif" },
+    ["gerçel"] = { type = "TYPE", value = "gerçel" },
+
+    ["sayı8"] = { type = "TYPE", value = "sayı8" },
+    ["sayı16"] = { type = "TYPE", value = "sayı16" },
+    ["sayı32"] = { type = "TYPE", value = "sayı32" },
+    ["sayı64"] = { type = "TYPE", value = "sayı64" },
+    ["pozitif8"] = { type = "TYPE", value = "pozitif8" },
+    ["pozitif16"] = { type = "TYPE", value = "pozitif16" },
+    ["pozitif32"] = { type = "TYPE", value = "pozitif32" },
+    ["pozitif64"] = { type = "TYPE", value = "pozitif64" },
+    ["gerçel32"] = { type = "TYPE", value = "gerçel32" },
+    ["gerçel64"] = { type = "TYPE", value = "gerçel64" },
+
+    ["karakter"] = { type = "TYPE", value = "karakter" },
+}
+
 for line, sep in input:gmatch("([^:.;]+)([:.;])") do
     local trimmed = line:gsub("^%s*\n", ""):gsub("\n", " ")
     local indent_count = select(2, trimmed:find("%S")) - 1
@@ -50,15 +69,28 @@ for line, sep in input:gmatch("([^:.;]+)([:.;])") do
     end
     last_indent_count = indent_count
 
-    local current_token_type = ""
-    local current_token = {}
+    local current_token = {
+        type = "",
+        value = {},
+    }
 
     local function flush()
-        if current_token_type ~= "" then
-            table.insert(tokens,
-                { type = current_token_type, value = (#current_token > 0) and table.concat(current_token) or nil })
-            current_token_type = ""
-            current_token = {}
+        if current_token.type ~= "" then
+            local value = table.concat(current_token.value)
+            local keyword = KEYWORDS[value]
+            if keyword then
+                table.insert(tokens, { type = keyword.type, value = keyword.value })
+            else
+                table.insert(
+                    tokens,
+                    {
+                        type = current_token.type,
+                        value = (value ~= "") and value or nil
+                    }
+                )
+            end
+            current_token.type = ""
+            current_token.value = {}
         end
     end
 
@@ -70,8 +102,8 @@ for line, sep in input:gmatch("([^:.;]+)([:.;])") do
                 flush()
                 table.insert(tokens, { type = SYMBOLS[codepoint].type })
             else
-                current_token_type = "IDENTIFIER"
-                table.insert(current_token, codepoint)
+                current_token.type = "IDENTIFIER"
+                table.insert(current_token.value, codepoint)
             end
         end
     end
