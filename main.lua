@@ -28,8 +28,20 @@ local inspect = require("lib.inspect")
 ---@field type "Indent"
 ---@class Outdent
 ---@field type "Outdent"
+---@class Label
+---@field type "Label"
+---@field value string
+---@class Integer
+---@field type "Integer"
+---@field value string
+---@class Number
+---@field type "Number"
+---@field value string
+---@class String
+---@field type "String"
+---@field value string
 
----@alias Token Identifier | LeftParenthesis | RightParenthesis | LeftBracket | RightBracket | LeftBrace | RightBrace | Dot | Semicolon | Colon | Type | Indent | Outdent
+---@alias Token Identifier | LeftParenthesis | RightParenthesis | LeftBracket | RightBracket | LeftBrace | RightBrace | Dot | Semicolon | Colon | Type | Indent | Outdent | Label | Integer | Number | String
 
 ---@param token Token
 ---@return Token
@@ -100,9 +112,9 @@ for line, sep in input:gmatch("([^:.;]+)([:.;])") do
     local trimmed = line:gsub("^%s*\n", ""):gsub("\n", " ")
     local indent_count = select(2, trimmed:find("%S")) - 1
     if indent_count > last_indent_count then
-        table.insert(tokens, { type = "IDENT" })
+        table.insert(tokens, { type = "Indent" })
     elseif indent_count < last_indent_count then
-        table.insert(tokens, { type = "DEDENT" })
+        table.insert(tokens, { type = "Outdent" })
     end
     last_indent_count = indent_count
 
@@ -116,7 +128,9 @@ for line, sep in input:gmatch("([^:.;]+)([:.;])") do
             local value = table.concat(current_token.value)
             local keyword = KEYWORDS[value]
             if keyword then
-                table.insert(tokens, { type = keyword.type, value = keyword.value })
+                table.insert(tokens, copy(keyword))
+            elseif current_token.type == "Integer" and value:match("%,") then
+                table.insert(tokens, { type = "Number", value = value })
             else
                 table.insert(
                     tokens,
@@ -138,8 +152,18 @@ for line, sep in input:gmatch("([^:.;]+)([:.;])") do
             if SYMBOLS[codepoint] then
                 flush()
                 table.insert(tokens, copy(SYMBOLS[codepoint]))
+            elseif current_token.type == "" and codepoint == "@" then
+                current_token.type = "Label"
+            elseif
+                (current_token.type == "" or current_token.type == "Identifier" and #current_token.value == 1 and current_token.value[1] == "-")
+                and codepoint:match("%d")
+            then
+                current_token.type = "Integer"
+                table.insert(current_token.value, codepoint)
             else
-                current_token.type = "IDENTIFIER"
+                if current_token.type == "" then
+                    current_token.type = "Identifier"
+                end
                 table.insert(current_token.value, codepoint)
             end
         end
