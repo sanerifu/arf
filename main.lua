@@ -124,6 +124,15 @@ local KEYWORDS = {
     ["dönsün"] = { type = "Return" },
 } ---@type table<string, Token>
 
+local UPPERCASE = {
+    ["İ"] = true,
+    ["Ş"] = true,
+    ["Ö"] = true,
+    ["Ü"] = true,
+    ["Ç"] = true,
+    ["Ğ"] = true, -- Ah yes starting your type with Ğ
+}
+
 for line, sep in input:gmatch("([^:.;]+)([:.;])") do
     local trimmed = line:gsub("^%s*\n", ""):gsub("\n", " ")
     local indent_count = select(2, trimmed:find("%S")) - 1
@@ -178,7 +187,11 @@ for line, sep in input:gmatch("([^:.;]+)([:.;])") do
                 table.insert(current_token.value, codepoint)
             else
                 if current_token.type == "" then
-                    current_token.type = "Identifier"
+                    if codepoint:match("[A-Z]") or UPPERCASE[codepoint] then
+                        current_token.type = "Type"
+                    else
+                        current_token.type = "Identifier"
+                    end
                 end
                 table.insert(current_token.value, codepoint)
             end
