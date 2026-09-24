@@ -1,6 +1,6 @@
 sayı a sayı b topla sayı:
-    a b + dön.
+    a b + döndür.
 
 yürüt sayı:
     1 2 topla.
-    0 dön.
+    0 döndür.

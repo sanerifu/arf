@@ -106,6 +106,22 @@ local KEYWORDS = {
     ["gerçel64"] = { type = "Type", value = "gerçel64" },
 
     ["karakter"] = { type = "Type", value = "karakter" },
+
+    ["ile"] = { type = "Between" },
+    ["arasında"] = { type = "Within" },
+    ["ise"] = { type = "Then" },
+    ["olsun"] = { type = "Assign" },
+    ["değil-ama"] = { type = "ElseIf" },
+    ["değilse"] = { type = "Else" },
+    ["bitsin"] = { type = "Break" },
+    ["sürsün"] = { type = "Continue" },
+    ["sürece"] = { type = "While" },
+    ["eklensin"] = { type = "AddAssign" },
+    ["çıkarılsın"] = { type = "SubtractAssign" },
+    ["çarpılsın"] = { type = "MultiplyAssign" },
+    ["bölünsün"] = { type = "DivideAssign" },
+    ["değişken"] = { type = "Mutable" },
+    ["dönsün"] = { type = "Return" },
 } ---@type table<string, Token>
 
 for line, sep in input:gmatch("([^:.;]+)([:.;])") do
