@@ -156,6 +156,17 @@ for line, sep in input:gmatch("([^:.;]+)([:.;])") do
                 table.insert(tokens, copy(keyword))
             elseif current_token.type == "Integer" and value:match("%,") then
                 table.insert(tokens, { type = "Number", value = value })
+            elseif current_token.type == "String" then
+                table.insert(tokens, {
+                    type = "String",
+                    value = value
+                        :sub(2, -2)
+                        :gsub(
+                            "%x%x",
+                            function(hex) return string.char(tonumber(hex, 16)) end
+                        )
+                        :gsub("\x01(%x%x)\x01", function(hex) return "\\" .. string.char(tonumber(hex, 16)) end),
+                })
             else
                 table.insert(
                     tokens,
@@ -189,6 +200,8 @@ for line, sep in input:gmatch("([^:.;]+)([:.;])") do
                 if current_token.type == "" then
                     if codepoint:match("[A-Z]") or UPPERCASE[codepoint] then
                         current_token.type = "Type"
+                    elseif codepoint == "\x02" then
+                        current_token.type = "String"
                     else
                         current_token.type = "Identifier"
                     end
