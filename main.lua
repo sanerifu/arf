@@ -25,8 +25,6 @@ input = input:gsub('"([^"]*)"', function(str)
     return ("\x02%s\x02"):format(table.concat(ret, ""))
 end)
 
-local last_indent_count = 0
-
 local tokens = {}
 
 local TERMINATER = {
@@ -92,15 +90,19 @@ local UPPERCASE = {
     ["Ğ"] = true, -- Ah yes starting your type with Ğ
 }
 
+local indents = { 0 }
+
 for line, sep in input:gmatch("([^:.;]+)([:.;])") do
     local trimmed = line:gsub("^%s*\n", ""):gsub("\n", " ")
     local indent_count = select(2, trimmed:find("%S")) - 1
-    if indent_count > last_indent_count then
+    if indent_count > indents[#indents] then
         table.insert(tokens, { type = "Indent" })
-    elseif indent_count < last_indent_count then
-        table.insert(tokens, { type = "Outdent" })
+        table.insert(indents, indent_count)
     end
-    last_indent_count = indent_count
+    while indent_count < indents[#indents] do
+        table.insert(tokens, { type = "Outdent" })
+        table.remove(indents)
+    end
 
     local current_token = {
         type = "",

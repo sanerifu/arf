@@ -15,6 +15,9 @@ yürüt sayı:
         değilse:
             @döngü sürsün.
 
+
+
+
     değişken karakter[512] metin [] olsun.
     değişken sayı metin_sonu 0 olsun.
     değişken sayı sonuç 0 olsun.
