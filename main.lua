@@ -45,22 +45,22 @@ local SYMBOLS = {
 }
 
 local KEYWORDS = {
-    ["sayı"] = { type = "Type", value = "sayı" },
-    ["pozitif"] = { type = "Type", value = "pozitif" },
-    ["gerçel"] = { type = "Type", value = "gerçel" },
+    ["sayı"] = { type = "TypeIdentifier", value = "sayı" },
+    ["pozitif"] = { type = "TypeIdentifier", value = "pozitif" },
+    ["gerçel"] = { type = "TypeIdentifier", value = "gerçel" },
 
-    ["sayı8"] = { type = "Type", value = "sayı8" },
-    ["sayı16"] = { type = "Type", value = "sayı16" },
-    ["sayı32"] = { type = "Type", value = "sayı32" },
-    ["sayı64"] = { type = "Type", value = "sayı64" },
-    ["pozitif8"] = { type = "Type", value = "pozitif8" },
-    ["pozitif16"] = { type = "Type", value = "pozitif16" },
-    ["pozitif32"] = { type = "Type", value = "pozitif32" },
-    ["pozitif64"] = { type = "Type", value = "pozitif64" },
-    ["gerçel32"] = { type = "Type", value = "gerçel32" },
-    ["gerçel64"] = { type = "Type", value = "gerçel64" },
+    ["sayı8"] = { type = "TypeIdentifier", value = "sayı8" },
+    ["sayı16"] = { type = "TypeIdentifier", value = "sayı16" },
+    ["sayı32"] = { type = "TypeIdentifier", value = "sayı32" },
+    ["sayı64"] = { type = "TypeIdentifier", value = "sayı64" },
+    ["pozitif8"] = { type = "TypeIdentifier", value = "pozitif8" },
+    ["pozitif16"] = { type = "TypeIdentifier", value = "pozitif16" },
+    ["pozitif32"] = { type = "TypeIdentifier", value = "pozitif32" },
+    ["pozitif64"] = { type = "TypeIdentifier", value = "pozitif64" },
+    ["gerçel32"] = { type = "TypeIdentifier", value = "gerçel32" },
+    ["gerçel64"] = { type = "TypeIdentifier", value = "gerçel64" },
 
-    ["karakter"] = { type = "Type", value = "karakter" },
+    ["karakter"] = { type = "TypeIdentifier", value = "karakter" },
 
     ["ile"] = { type = "Between" },
     ["arasında"] = { type = "Within" },
@@ -77,6 +77,10 @@ local KEYWORDS = {
     ["bölünsün"] = { type = "DivideAssign" },
     ["değişken"] = { type = "Mutable" },
     ["dönsün"] = { type = "Return" },
+    ["öbek"] = { type = "Struct" },
+    ["seçenek"] = { type = "Enum" },
+    ["örtüşüm"] = { type = "Union" },
+    ["nitelik"] = { type = "Trait" },
 }
 
 local UPPERCASE = {
@@ -122,6 +126,14 @@ for line, sep in input:gmatch("([^:.;]+)([:.;])") do
                         )
                         :gsub("\x01(%x%x)\x01", function(hex) return "\\" .. string.char(tonumber(hex, 16)) end),
                 })
+            elseif current_token.type == "TraitIdentifier" then
+                table.insert(
+                    tokens,
+                    {
+                        type = current_token.type,
+                        value = value:sub(2)
+                    }
+                )
             else
                 table.insert(
                     tokens,
@@ -154,12 +166,18 @@ for line, sep in input:gmatch("([^:.;]+)([:.;])") do
             else
                 if current_token.type == "" then
                     if codepoint:match("[A-Z]") or UPPERCASE[codepoint] then
-                        current_token.type = "Type"
+                        current_token.type = "TypeIdentifier"
                     elseif codepoint == "\x02" then
                         current_token.type = "String"
                     else
                         current_token.type = "Identifier"
                     end
+                elseif current_token.type == "Identifier"
+                    and #current_token.value == 1
+                    and current_token.value[1] == "+"
+                    and (codepoint:match("[A-Z]") or UPPERCASE[codepoint])
+                then
+                    current_token.type = "TraitIdentifier"
                 end
                 table.insert(current_token.value, codepoint)
             end
