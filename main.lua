@@ -1,50 +1,5 @@
 local inspect = require("lib.inspect")
 
----@class Identifier
----@field type "Identifier"
----@field value string
----@class LeftParenthesis
----@field type "LeftParenthesis"
----@class RightParenthesis
----@field type "RightParenthesis"
----@class LeftBracket
----@field type "LeftBracket"
----@class RightBracket
----@field type "RigthBracket"
----@class LeftBrace
----@field type "LeftBrace"
----@class RightBrace
----@field type "RightBrace"
----@class Dot
----@field type "Dot"
----@class Semicolon
----@field type "Semicolon"
----@class Colon
----@field type "Colon"
----@class Type
----@field type "Type"
----@field value string
----@class Indent
----@field type "Indent"
----@class Outdent
----@field type "Outdent"
----@class Label
----@field type "Label"
----@field value string
----@class Integer
----@field type "Integer"
----@field value string
----@class Number
----@field type "Number"
----@field value string
----@class String
----@field type "String"
----@field value string
-
----@alias Token Identifier | LeftParenthesis | RightParenthesis | LeftBracket | RightBracket | LeftBrace | RightBrace | Dot | Semicolon | Colon | Type | Indent | Outdent | Label | Integer | Number | String
-
----@param token Token
----@return Token
 local function copy(token)
     return { type = token.type, value = token.value }
 end
@@ -72,13 +27,13 @@ end)
 
 local last_indent_count = 0
 
-local tokens = {} ---@type Token[]
+local tokens = {}
 
 local TERMINATER = {
     [":"] = { type = "Colon" },
     ["."] = { type = "Dot" },
     [";"] = { type = "Semicolon" },
-} ---@type table<string, Token>
+}
 
 local SYMBOLS = {
     ["("] = { type = "LeftParenthesis" },
@@ -87,7 +42,7 @@ local SYMBOLS = {
     ["]"] = { type = "RightBracket" },
     ["{"] = { type = "LeftBrace" },
     ["}"] = { type = "RightBrace" },
-} ---@type table<string, Token>
+}
 
 local KEYWORDS = {
     ["sayı"] = { type = "Type", value = "sayı" },
@@ -122,7 +77,7 @@ local KEYWORDS = {
     ["bölünsün"] = { type = "DivideAssign" },
     ["değişken"] = { type = "Mutable" },
     ["dönsün"] = { type = "Return" },
-} ---@type table<string, Token>
+}
 
 local UPPERCASE = {
     ["İ"] = true,
