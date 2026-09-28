@@ -1,5 +1,16 @@
-+Üazdırılabilir nitelik:
+Yazdırılabilir nitelik:
     Kendi kendi yaz.
+
+Tür Tip Dizi öbek:
+    Tip* veri;
+    sayı uzunluk;
+    sayı kapasite;
+
+Sayısal SayıTürü SayıTürü SAYI faktöriyel SayıTürü:
+    SAYI 1 == ise:
+        1 dön.
+    değilse:
+        (SAYI ((SAYI 1 -) faktöriyel) *) dön.
 
 sayı a sayı b topla sayı:
     a b + döndür.

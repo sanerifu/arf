@@ -87,8 +87,41 @@ local UPPERCASE = {
     ["Ö"] = true,
     ["Ü"] = true,
     ["Ç"] = true,
-    ["Ğ"] = true, -- Ah yes starting your type with Ğ
+    ["Ğ"] = true,
 }
+for c = string.byte("A"), string.byte("Z") do
+    UPPERCASE[string.char(c)] = true
+end
+
+local LOWERCASE = {
+    ["i"] = true,
+    ["ş"] = true,
+    ["ö"] = true,
+    ["ü"] = true,
+    ["ç"] = true,
+    ["ğ"] = true,
+}
+for c = string.byte("a"), string.byte("z") do
+    LOWERCASE[string.char(c)] = true
+end
+
+local function allUppercase(s)
+    for codepoint in s:gmatch("[\1-\127\194-\244][\128-\191]*") do
+        if LOWERCASE[codepoint] then
+            return false
+        end
+    end
+    return true
+end
+
+local function allLowercase(s)
+    for codepoint in s:gmatch("[\1-\127\194-\244][\128-\191]*") do
+        if UPPERCASE[codepoint] then
+            return false
+        end
+    end
+    return true
+end
 
 local indents = { 0 }
 
@@ -128,14 +161,11 @@ for line, sep in input:gmatch("([^:.;]+)([:.;])") do
                         )
                         :gsub("\x01(%x%x)\x01", function(hex) return "\\" .. string.char(tonumber(hex, 16)) end),
                 })
-            elseif current_token.type == "TraitIdentifier" then
-                table.insert(
-                    tokens,
-                    {
-                        type = current_token.type,
-                        value = value:sub(2)
-                    }
-                )
+            elseif current_token.type == "ComptimeIdentifier" and #value == 1 then
+                table.insert(tokens, {
+                    type = "TypeIdentifier",
+                    value = value,
+                })
             else
                 table.insert(
                     tokens,
@@ -165,21 +195,18 @@ for line, sep in input:gmatch("([^:.;]+)([:.;])") do
             then
                 current_token.type = "Integer"
                 table.insert(current_token.value, codepoint)
+            elseif current_token.type == "ComptimeIdentifier" and LOWERCASE[codepoint] then
+                current_token.type = "TypeIdentifier"
+                table.insert(current_token.value, codepoint)
             else
                 if current_token.type == "" then
-                    if codepoint:match("[A-Z]") or UPPERCASE[codepoint] then
-                        current_token.type = "TypeIdentifier"
+                    if UPPERCASE[codepoint] then
+                        current_token.type = "ComptimeIdentifier"
                     elseif codepoint == "\x02" then
                         current_token.type = "String"
                     else
                         current_token.type = "Identifier"
                     end
-                elseif current_token.type == "Identifier"
-                    and #current_token.value == 1
-                    and current_token.value[1] == "+"
-                    and (codepoint:match("[A-Z]") or UPPERCASE[codepoint])
-                then
-                    current_token.type = "TraitIdentifier"
                 end
                 table.insert(current_token.value, codepoint)
             end
