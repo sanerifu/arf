@@ -24,12 +24,13 @@ input = input:gsub('"([^"]*)"', function(str)
     end
     return ("\x02%s\x02"):format(table.concat(ret, ""))
 end)
+input = input:gsub("%.%&", "\x03")
+input = input:gsub("%.%*", "\x04")
 
 local tokens = {}
 
 local TERMINATER = {
     [":"] = { type = "Colon" },
-    ["."] = { type = "Dot" },
     [";"] = { type = "Semicolon" },
 }
 
@@ -40,6 +41,10 @@ local SYMBOLS = {
     ["]"] = { type = "RightBracket" },
     ["{"] = { type = "LeftBrace" },
     ["}"] = { type = "RightBrace" },
+    ["&"] = { type = "Ampersand" },
+    ["."] = { type = "Dot" },
+    ["\x03"] = {type = "Addressof"},
+    ["\x04"] = {type = "Dereference"},
 }
 
 local KEYWORDS = {
@@ -125,7 +130,7 @@ end
 
 local indents = { 0 }
 
-for line, sep in input:gmatch("([^:.;]+)([:.;])") do
+for line, sep in input:gmatch("([^:;]+)([:;])") do
     local trimmed = line:gsub("^%s*\n", ""):gsub("\n", " ")
     local indent_count = select(2, trimmed:find("%S")) - 1
     if indent_count > indents[#indents] then

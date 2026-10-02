@@ -1,7 +1,9 @@
 yürüt sayı:
-    pozitif x 1 olsun.
-    gerçel pi 3,141592 olsun.
-    sayı a -1 olsun.
-    gerçel b (-1,71 1 -) olsun.
-    değişken sayı y 0 olsun.
-    x dönsün.
+    pozitif x 1 olsun;
+    gerçel pi 3,141592 olsun;
+    sayı a -1 olsun;
+    sayı& p a.& olsun;
+    p.*.a.b 3 olsun.
+    gerçel b (-1,71 1 -) olsun;
+    değişken sayı y 0 olsun;
+    x dönsün;

@@ -1,21 +1,29 @@
-Expression
+ExpressionSuffix
+    : Addressof
+    , Dereference
+    , Dot Identifier
+    , Dot LeftParenthesis Expression+ RightParenthesis
+    , LeftBracket Expression RightBracket
+    , Ampersand
+    ;
+
+ExpressionBase
     : Identifier
     , Integer
     , Number
     , String
-    , LeftParenthesis FunctionCall RightParenthesis
-    , Expression DotAmpersand
-    , Expression DotAsteriks
+    , LeftParenthesis Expression+ RightParenthesis
+    , LeftBracket Expression* RightBracket
+    , LeftBrace (Identifier Expression)* RightBrace
     ;
 
-FunctionCall
-    : Expression +
+Expression
+    : ExpressionBase ExpressionSuffix*
     ;
 
-Statement
-    : FunctionCall Semicolon
-    , Identifier Expression Assign Semicolon
-    , Expression Identifier Expression Assign Semicolon
+ Statement
+    : Expression+ Semicolon
+    , Expression Expression Assign Semicolon
+    , Expression Expression Expression Assign Semicolon
     ;
-
 
